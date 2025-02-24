@@ -91,7 +91,8 @@
             })
                 .then(response => response.json())
                 .then(data => {
-                    document.getElementById('result').innerText = 'Predviđena ocjena: ${data.prediction}';
+                    // Ispravak: koristimo template literale s backtickovima (`)
+                    document.getElementById('result').innerText = `Predviđena ocjena: ${data.prediction}`;
                 })
                 .catch(error => console.error('Greška:', error));
         });
