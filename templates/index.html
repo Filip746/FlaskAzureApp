@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="hr">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Predikcija ocjena knjiga</title>
+</head>
+
+<body>
+    <h2>Unesi podatke za predikciju</h2>
+    <form id="predict-form">
+        <input type="text" id="param1" placeholder="Parametar 1">
+        <input type="text" id="param2" placeholder="Parametar 2">
+        <input type="text" id="param3" placeholder="Parametar 3">
+        <button type="submit">Predvidi</button>
+    </form>
+    <div id="result"></div>
+
+    <script>
+        document.getElementById('predict-form').addEventListener('submit', function (event) {
+            event.preventDefault();
+            let data = {
+                param1: document.getElementById('param1').value,
+                param2: document.getElementById('param2').value,
+                param3: document.getElementById('param3').value
+            };
+
+            fetch('/predict', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data)
+            })
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('result').innerText = `Predviđena ocjena: ${data.prediction}`;
+                })
+                .catch(error => console.error('Greška:', error));
+        });
+    </script>
+</body>
+
+</html>
