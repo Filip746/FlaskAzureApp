@@ -87,13 +87,18 @@
             fetch('/predict', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(data)
+                body: JSON.stringify({
+                    param1: document.getElementById('param1').value,
+                    param2: document.getElementById('param2').value,
+                    param3: document.getElementById('param3').value
+                })
             })
                 .then(response => response.json())
                 .then(data => {
-                    // Ispravak: koristimo template literale s backtickovima (`)
-                    document.getElementById('result').innerText = `Predviđena ocjena: ${data.prediction}`;
+                    document.getElementById('result').innerText =
+                        `Predviđena ocjena: ${data.prediction}`;
                 })
+
                 .catch(error => console.error('Greška:', error));
         });
     </script>
