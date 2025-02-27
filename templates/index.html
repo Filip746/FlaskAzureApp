@@ -4,107 +4,36 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Predikcija ocjena knjiga</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            line-height: 1.6;
-            margin: 0;
-            padding: 20px;
-            background-color: #f4f4f4;
-        }
-
-        .container {
-            max-width: 600px;
-            margin: auto;
-            background: #fff;
-            padding: 20px;
-            border-radius: 5px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-        }
-
-        h2 {
-            color: #333;
-            text-align: center;
-        }
-
-        #predict-form {
-            display: flex;
-            flex-direction: column;
-        }
-
-        input[type="text"] {
-            margin-bottom: 10px;
-            padding: 10px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-        }
-
-        button {
-            padding: 10px;
-            background-color: #5cb85c;
-            color: white;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-        }
-
-        button:hover {
-            background-color: #4cae4c;
-        }
-
-        #result {
-            margin-top: 20px;
-            padding: 10px;
-            background-color: #e7f3fe;
-            border: 1px solid #b9d4e9;
-            border-radius: 4px;
-        }
-    </style>
+    <title>Pozivanje Flask funkcije</title>
 </head>
 
 <body>
-    <div class="container">
-        <h2>Predikcija ocjena knjiga</h2>
-        <form id="predict-form">
-            <input type="text" id="param1" placeholder="Broj stranica">
-            <input type="text" id="param2" placeholder="Godina izdanja">
-            <input type="text" id="param3" placeholder="Prosječna ocjena autora">
-            <button type="submit">Predvidi</button>
-        </form>
-        <div id="result"></div>
-    </div>
+    <h2>Pozivanje Flask funkcije iz HTML-a</h2>
+
+    <input type="text" id="param1" placeholder="Unesi broj 1">
+    <input type="text" id="param2" placeholder="Unesi broj 2">
+    <button onclick="pozoviPythonFunkciju()">Pošalji</button>
+
+    <p id="rezultat"></p>
 
     <script>
-        document.getElementById('predict-form').addEventListener('submit', function (event) {
-            event.preventDefault();
-
-            const AZURE_ML_ENDPOINT = "https://b73a5ed0-5a44-4896-985e-69680dc267bf.northeurope.azurecontainer.io/score";
-            const AZURE_ML_API_KEY = "JqS3yTa93SKn8YYsqPI5bCuYHb9rzK7g";
-
+        function pozoviPythonFunkciju() {
             let data = {
-                data: [[
-                    document.getElementById('param1').value,
-                    document.getElementById('param2').value,
-                    document.getElementById('param3').value
-                ]]
+                param1: document.getElementById('param1').value,
+                param2: document.getElementById('param2').value
             };
 
-            fetch(AZURE_ML_ENDPOINT, {
+            fetch("/predict", {
                 method: "POST",
-                mode: "cors",
-                headers: {
-                    "Content-Type": "application/json",
-                    "Authorization": `Bearer ${AZURE_ML_API_KEY}`
-                },
+                headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(data)
             })
                 .then(response => response.json())
                 .then(data => {
-                    document.getElementById("result").innerText = `Predviđena ocjena: ${data.predictions}`;
+                    document.getElementById("rezultat").innerText = "Rezultat: " + data.prediction;
                 })
-                .catch(error => console.error("Greška:", error));
-        });
+                .catch(error => console.error("Greška:", error));
+        }
     </script>
 </body>
 
