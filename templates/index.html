@@ -22,7 +22,7 @@
             let data = {
                 param1: document.getElementById('param1').value,
                 param2: document.getElementById('param2').value,
-                param3: document.getElementById('param3').value  // Ensure param3 is included
+                param3: document.getElementById('param3').value
             };
 
             fetch("/predict", {
@@ -30,15 +30,23 @@
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(data)
             })
-                .then(response => response.json())
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`HTTP Error! Status: ${response.status}`);
+                    }
+                    return response.json();
+                })
                 .then(data => {
                     if (data.prediction) {
                         document.getElementById("rezultat").innerText = "Predviđena cijena: " + data.prediction;
                     } else {
-                        document.getElementById("rezultat").innerText = "Greška: " + data.error;
+                        document.getElementById("rezultat").innerText = "Greška: " + JSON.stringify(data);
                     }
                 })
-                .catch(error => console.error("Greška:", error));
+                .catch(error => {
+                    document.getElementById("rezultat").innerText = "Greška: " + error.message;
+                    console.error("Greška:", error);
+                });
         }
     </script>
 </body>

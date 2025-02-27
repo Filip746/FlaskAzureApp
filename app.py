@@ -18,26 +18,35 @@ def home():
 @app.route('/predict', methods=['POST'])
 def predict():
     try:
-        # Get JSON data from frontend
         data = request.get_json()
-        
-        # Convert input into the expected format for Azure ML
-        input_data = {
-            "data": [[float(data['param1']), float(data['param2']), float(data['param3'])]]  # Ensure numeric values
-        }
-        
+
+        # Check if all parameters exist
+        if 'param1' not in data or 'param2' not in data or 'param3' not in data:
+            return jsonify({'error': 'Missing input parameters'}), 400
+
+        # Convert input to float values (ensure numeric values)
+        try:
+            param1 = float(data['param1'])
+            param2 = float(data['param2'])
+            param3 = float(data['param3'])
+        except ValueError:
+            return jsonify({'error': 'Invalid input: all parameters must be numbers'}), 400
+
+        # Prepare request data
+        input_data = {"data": [[param1, param2, param3]]}
+
         # Send request to Azure ML
         response = requests.post(AZURE_ML_ENDPOINT, json=input_data, headers=headers)
-        
-        # Handle Azure response
+
+        # Handle API response
         if response.status_code == 200:
             prediction = response.json()
-            return jsonify({"prediction": prediction})  # Ensure correct key
-
-        return jsonify({'error': 'Azure API request failed'}), response.status_code
+            return jsonify({"prediction": prediction})  # Return proper JSON response
+        else:
+            return jsonify({'error': f'Azure API request failed with status {response.status_code}', 'details': response.text}), response.status_code
 
     except Exception as e:
-        return jsonify({'error': str(e)}), 500
+        return jsonify({'error': 'Internal Server Error', 'details': str(e)}), 500
 
 if __name__ == '__main__':
     app.run(debug=True)
