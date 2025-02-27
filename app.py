@@ -18,7 +18,7 @@ def home():
 @app.route('/predict', methods=['POST'])
 def predict():
     data = request.get_json()
-    input_data = {"data": [[data['param1'], data['param2'], data['param3']]]}
+    input_data = {"datapy": [[data['param1'], data['param2'], data['param3']]]}
     
     response = requests.post(AZURE_ML_ENDPOINT, 
                             json=input_data, 
