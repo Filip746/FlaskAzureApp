@@ -92,6 +92,7 @@
 
             fetch(AZURE_ML_ENDPOINT, {
                 method: "POST",
+                mode: "cors",
                 headers: {
                     "Content-Type": "application/json",
                     "Authorization": `Bearer ${AZURE_ML_API_KEY}`
