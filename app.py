@@ -18,11 +18,13 @@ def predict():
         "Inputs": {
             "input1": [
                 {
+                    "Name": request.form['Name'],
+                    "Author": request.form['Author'],
                     "User Rating": float(request.form['User Rating']),
                     "Reviews": int(request.form['Reviews']),
                     "Price": int(request.form['Price']),
                     "Year": int(request.form['Year']),
-                    "Author": request.form['Author']
+                    "Genre": request.form['Genre'],                    
                 }
             ]
         },
