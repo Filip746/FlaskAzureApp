@@ -1,61 +1,32 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Prediction</title>
-    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='styles.css') }}">
-
+    <title>Azure ML Prediction</title>
 </head>
 
 <body>
-    <div class="form">
-        <h1>Bestseller Book Prediction Form</h1>
-        <form action="/predict" method="post">
+    <h2>Enter Data for Prediction</h2>
+    <form id="predict-form">
+        <textarea id="input-data" rows="5" cols="50"></textarea><br>
+        <button type="button" onclick="sendPrediction()">Predict</button>
+    </form>
+    <h3>Prediction Result:</h3>
+    <p id="result"></p>
 
-            <label for="name">Book Name:</label>
-            <input type="text" name="name" id="name" required>
-            <p>Enter the book's title. This helps in identifying unique trends in book popularity.</p>
-            <br><br>
-
-            <label for="author">Author:</label>
-            <input type="text" name="author" id="author" required>
-            <p>The author's name is crucial as renowned authors often have higher bestseller chances.</p>
-            <br><br>
-
-            <label for="user_rating">User Rating:</label>
-            <input type="number" name="user_rating" id="user_rating" step="0.1" required>
-            <p>Higher ratings typically indicate better reception and can impact bestseller status.</p>
-            <br><br>
-
-            <label for="reviews">Number of Reviews:</label>
-            <input type="number" name="reviews" id="reviews" required>
-            <p>More reviews often correlate with wider readership and bestseller potential.</p>
-            <br><br>
-
-            <label for="price">Price:</label>
-            <input type="number" name="price" id="price" required>
-            <p>Book pricing affects sales—lower prices may attract more buyers, but premium pricing can suggest
-                exclusivity.</p>
-            <br><br>
-
-            <label for="year">Year of Publication:</label>
-            <input type="number" name="year" id="year" required>
-            <p>Newer books might be more popular, but classics remain bestsellers for decades.</p>
-            <br><br>
-
-            <label for="genre">Genre:</label>
-            <select name="genre" id="genre">
-                <option value="Fiction">Fiction</option>
-                <option value="Non Fiction">Non Fiction</option>
-            </select>
-            <p>Fiction books often dominate bestsellers, but impactful non-fiction books also perform well.</p>
-            <br><br>
-
-            <input type="submit" value="Predict">
-        </form>
-    </div>
+    <script>
+        function sendPrediction() {
+            let inputData = document.getElementById("input-data").value;
+            fetch('/predict', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: inputData
+            })
+                .then(response => response.json())
+                .then(data => document.getElementById("result").innerText = JSON.stringify(data))
+                .catch(error => console.error('Error:', error));
+        }
+    </script>
 </body>
 
 </html>

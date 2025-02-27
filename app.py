@@ -1,12 +1,19 @@
 from flask import Flask, render_template, request, jsonify
-import requests
+import urllib.request
 import json
+import ssl
+import os
+
+def allowSelfSignedHttps(allowed):
+    if allowed and not os.environ.get('PYTHONHTTPSVERIFY', '') and getattr(ssl, '_create_unverified_context', None):
+        ssl._create_default_https_context = ssl._create_unverified_context
+
+allowSelfSignedHttps(True)
 
 app = Flask(__name__)
 
-# Azure ML endpoint and API key
-endpoint = "http://b73a5ed0-5a44-4896-985e-69680dc267bf.northeurope.azurecontainer.io/score"
-api_key = "JqS3yTa93SKn8YYsqPI5bCuYHb9rzK7g"
+API_URL = 'http://b73a5ed0-5a44-4896-985e-69680dc267bf.northeurope.azurecontainer.io/score'
+API_KEY = 'JqS3yTa93SKn8YYsqPI5bCuYHb9rzK7g'  # Replace with your API key
 
 @app.route('/')
 def home():
@@ -14,39 +21,30 @@ def home():
 
 @app.route('/predict', methods=['POST'])
 def predict():
-    data = {
-        "Inputs": {
-            "input1": [
-                {
-                    "Name": request.form['Name'],
-                    "Author": request.form['Author'],
-                    "User Rating": float(request.form['User Rating']),
-                    "Reviews": int(request.form['Reviews']),
-                    "Price": int(request.form['Price']),
-                    "Year": int(request.form['Year']),
-                    "Genre": request.form['Genre'],                    
-                }
-            ]
-        },
-        "GlobalParameters": {}
-    }
+    try:
+        input_data = request.json  # JSON iz zahtjeva
 
-    headers = {
-        'Content-Type': 'application/json',
-        'Authorization': f'Bearer {api_key}'
-    }
+        # Prepravi strukturu JSON-a kako bi odgovarao očekivanom formatu
+        formatted_data = {
+            "Inputs": {
+                "input1": [input_data]  # Azure ML očekuje listu unutar "input1"
+            }
+        }
 
-    response = requests.post(endpoint, headers=headers, data=json.dumps(data))
-    result = response.json()
-    
-    print(json.dumps(result, indent=4))
+        body = json.dumps(formatted_data).encode('utf-8')  # Encode u JSON format
+        headers = {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer ' + API_KEY
+        }
 
-    scored_labels = result['Results']['WebServiceOutput0'][0]['Scored Labels']
-    scored_probabilities = result['Results']['WebServiceOutput0'][0]['Scored Probabilities']
+        req = urllib.request.Request(API_URL, body, headers)
+        response = urllib.request.urlopen(req)
+        result = json.loads(response.read())
 
-    prediction_text = "Dobra knjiga" if scored_labels == 0.9 else "Prosječna knjiga"
-    
-    return render_template('result.html', prediction=prediction_text, probability=scored_probabilities)
+        return jsonify(result)
+
+    except urllib.error.HTTPError as e:
+        return jsonify({"error": e.read().decode("utf-8")}), e.code
 
 
 if __name__ == '__main__':
