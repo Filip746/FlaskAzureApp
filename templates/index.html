@@ -79,27 +79,26 @@
         document.getElementById('predict-form').addEventListener('submit', function (event) {
             event.preventDefault();
             let data = {
-                param1: document.getElementById('param1').value,
-                param2: document.getElementById('param2').value,
-                param3: document.getElementById('param3').value
+                data: [[
+                    document.getElementById('param1').value,
+                    document.getElementById('param2').value,
+                    document.getElementById('param3').value
+                ]]
             };
 
-            fetch('/predict', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    param1: document.getElementById('param1').value,
-                    param2: document.getElementById('param2').value,
-                    param3: document.getElementById('param3').value
-                })
+            fetch("http://b73a5ed0-5a44-4896-985e-69680dc267bf.northeurope.azurecontainer.io/score", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": "Bearer JqS3yTa93SKn8YYsqPI5bCuYHb9rzK7g"
+                },
+                body: JSON.stringify(data)
             })
                 .then(response => response.json())
                 .then(data => {
-                    document.getElementById('result').innerText =
-                        `Predviđena ocjena: ${data.prediction}`;
+                    document.getElementById("result").innerText = `Predviđena ocjena: ${data.predictions}`;
                 })
-
-                .catch(error => console.error('Greška:', error));
+                .catch(error => console.error("Greška:", error));
         });
     </script>
 </body>

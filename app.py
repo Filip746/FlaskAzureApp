@@ -3,7 +3,6 @@ import requests
 
 app = Flask(__name__)
 
-# Postavi endpoint i API ključ
 AZURE_ML_ENDPOINT = "http://b73a5ed0-5a44-4896-985e-69680dc267bf.northeurope.azurecontainer.io/score"
 AZURE_ML_API_KEY = "JqS3yTa93SKn8YYsqPI5bCuYHb9rzK7g"
 
