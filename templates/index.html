@@ -1,54 +1,27 @@
 <!DOCTYPE html>
-<html lang="hr">
+<html lang="en">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Predviđanje Cijene Knjige</title>
+    <title>Stroke Prediction</title>
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='styles.css') }}">
+
 </head>
 
 <body>
-    <h2>Unesi podatke za predviđanje cijene knjige</h2>
+    <h2>Unesi podatke za predikciju</h2>
+    <form id="predict-form">
+        <input type="text" id="param1" placeholder="Parametar 1">
+        <input type="text" id="param2" placeholder="Parametar 2">
+        <input type="text" id="param3" placeholder="Parametar 3">
+        <button type="submit">Predvidi</button>
+    </form>
+    <div id="result"></div>
 
-    <input type="text" id="param1" placeholder="Broj stranica">
-    <input type="text" id="param2" placeholder="Godina objave">
-    <input type="text" id="param3" placeholder="Ocjena knjige">
-    <button onclick="pozoviPythonFunkciju()">Pošalji</button>
-
-    <p id="rezultat"></p>
-
-    <script>
-        function pozoviPythonFunkciju() {
-            let data = {
-                param1: document.getElementById('param1').value,
-                param2: document.getElementById('param2').value,
-                param3: document.getElementById('param3').value
-            };
-
-            fetch("/predict", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(data)
-            })
-                .then(response => {
-                    if (!response.ok) {
-                        throw new Error(`HTTP Error! Status: ${response.status}`);
-                    }
-                    return response.json();
-                })
-                .then(data => {
-                    if (data.prediction) {
-                        document.getElementById("rezultat").innerText = "Predviđena cijena: " + data.prediction;
-                    } else {
-                        document.getElementById("rezultat").innerText = "Greška: " + JSON.stringify(data);
-                    }
-                })
-                .catch(error => {
-                    document.getElementById("rezultat").innerText = "Greška: " + error.message;
-                    console.error("Greška:", error);
-                });
-        }
-    </script>
+    <input type="submit" value="Predict">
+    </form>
+    </div>
 </body>
 
 </html>

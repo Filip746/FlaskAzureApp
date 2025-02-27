@@ -1,16 +1,12 @@
-from flask import Flask, request, jsonify, render_template
+from flask import Flask, render_template, request, jsonify
 import requests
-import traceback  # Import traceback to print detailed errors
+import json
 
 app = Flask(__name__)
 
-AZURE_ML_ENDPOINT = "https://b73a5ed0-5a44-4896-985e-69680dc267bf.northeurope.azurecontainer.io/score"
-AZURE_ML_API_KEY = "JqS3yTa93SKn8YYsqPI5bCuYHb9rzK7g"
-
-headers = {
-    'Content-Type': 'application/json',
-    'Authorization': f'Bearer {AZURE_ML_API_KEY}'
-}
+# Azure ML endpoint and API key
+endpoint = "https://b73a5ed0-5a44-4896-985e-69680dc267bf.northeurope.azurecontainer.io/score"
+api_key = "JqS3yTa93SKn8YYsqPI5bCuYHb9rzK7g"
 
 @app.route('/')
 def home():
@@ -18,49 +14,38 @@ def home():
 
 @app.route('/predict', methods=['POST'])
 def predict():
-    try:
-        data = request.get_json()
-        print("📩 Received Data from Frontend:", data)
+    data = {
+        "Inputs": {
+            "input1": [
+                {
+                    "User Rating": float(request.form['User Rating']),
+                    "Reviews": int(request.form['Reviews']),
+                    "Price": int(request.form['Price']),
+                    "Year": int(request.form['Year']),
+                    "Author": request.form['Author']
+                }
+            ]
+        },
+        "GlobalParameters": {}
+    }
 
-        # Ensure all parameters exist
-        if not data or 'param1' not in data or 'param2' not in data or 'param3' not in data:
-            print("❌ Missing input parameters")
-            return jsonify({'error': 'Missing input parameters'}), 400
+    headers = {
+        'Content-Type': 'application/json',
+        'Authorization': f'Bearer {api_key}'
+    }
 
-        # Convert to numbers
-        try:
-            param1 = float(data['param1'])
-            param2 = float(data['param2'])
-            param3 = float(data['param3'])
-        except ValueError:
-            print("❌ Invalid input type (non-numeric value detected)")
-            return jsonify({'error': 'Invalid input: all parameters must be numbers'}), 400
+    response = requests.post(endpoint, headers=headers, data=json.dumps(data))
+    result = response.json()
+    
+    print(json.dumps(result, indent=4))
 
-        # Prepare request for Azure ML
-        input_data = {"data": [[param1, param2, param3]]}
-        print("📤 Sending Request to Azure ML:", input_data)
+    scored_labels = result['Results']['WebServiceOutput0'][0]['Scored Labels']
+    scored_probabilities = result['Results']['WebServiceOutput0'][0]['Scored Probabilities']
 
-        # Call Azure ML API
-        response = requests.post(AZURE_ML_ENDPOINT, json=input_data, headers=headers)
-        print("📨 Azure ML Response:", response.status_code, response.text)
+    prediction_text = "Dobra knjiga" if scored_labels == 0.9 else "Prosječna knjiga"
+    
+    return render_template('result.html', prediction=prediction_text, probability=scored_probabilities)
 
-        # Handle Azure ML response
-        if response.status_code == 200:
-            prediction = response.json()
-            print("✅ Prediction Success:", prediction)
-            return jsonify({"prediction": prediction})
-        else:
-            print("❌ Azure ML API Failed:", response.status_code, response.text)
-            return jsonify({
-                'error': f'Azure API request failed with status {response.status_code}',
-                'details': response.text
-            }), response.status_code
-
-    except Exception as e:
-        print("❌ Internal Server Error:", str(e))
-        import traceback
-        traceback.print_exc()  # Print detailed error trace
-        return jsonify({'error': 'Internal Server Error', 'details': str(e)}), 500
 
 if __name__ == '__main__':
     app.run(debug=True)
