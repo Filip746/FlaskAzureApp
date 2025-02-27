@@ -4,14 +4,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pozivanje Flask funkcije</title>
+    <title>Predviđanje Cijene Knjige</title>
 </head>
 
 <body>
-    <h2>Pozivanje Flask funkcije iz HTML-a</h2>
+    <h2>Unesi podatke za predviđanje cijene knjige</h2>
 
-    <input type="text" id="param1" placeholder="Unesi broj 1">
-    <input type="text" id="param2" placeholder="Unesi broj 2">
+    <input type="text" id="param1" placeholder="Broj stranica">
+    <input type="text" id="param2" placeholder="Godina objave">
+    <input type="text" id="param3" placeholder="Ocjena knjige">
     <button onclick="pozoviPythonFunkciju()">Pošalji</button>
 
     <p id="rezultat"></p>
@@ -20,7 +21,8 @@
         function pozoviPythonFunkciju() {
             let data = {
                 param1: document.getElementById('param1').value,
-                param2: document.getElementById('param2').value
+                param2: document.getElementById('param2').value,
+                param3: document.getElementById('param3').value  // Ensure param3 is included
             };
 
             fetch("/predict", {
@@ -30,7 +32,11 @@
             })
                 .then(response => response.json())
                 .then(data => {
-                    document.getElementById("rezultat").innerText = "Rezultat: " + data.prediction;
+                    if (data.prediction) {
+                        document.getElementById("rezultat").innerText = "Predviđena cijena: " + data.prediction;
+                    } else {
+                        document.getElementById("rezultat").innerText = "Greška: " + data.error;
+                    }
                 })
                 .catch(error => console.error("Greška:", error));
         }

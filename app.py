@@ -17,17 +17,27 @@ def home():
 
 @app.route('/predict', methods=['POST'])
 def predict():
-    data = request.get_json()
-    input_data = {"datapy": [[data['param1'], data['param2'], data['param3']]]}
-    
-    response = requests.post(AZURE_ML_ENDPOINT, 
-                            json=input_data, 
-                            headers=headers)
-    
-    if response.status_code == 200:
-        return jsonify(response.json())
-    else:
-        return jsonify({'error': 'API request failed'}), 500
+    try:
+        # Get JSON data from frontend
+        data = request.get_json()
+        
+        # Convert input into the expected format for Azure ML
+        input_data = {
+            "data": [[float(data['param1']), float(data['param2']), float(data['param3'])]]  # Ensure numeric values
+        }
+        
+        # Send request to Azure ML
+        response = requests.post(AZURE_ML_ENDPOINT, json=input_data, headers=headers)
+        
+        # Handle Azure response
+        if response.status_code == 200:
+            prediction = response.json()
+            return jsonify({"prediction": prediction})  # Ensure correct key
+
+        return jsonify({'error': 'Azure API request failed'}), response.status_code
+
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
 
 if __name__ == '__main__':
     app.run(debug=True)
