@@ -20,49 +20,46 @@ def home():
 def predict():
     try:
         data = request.get_json()
+        print("📩 Received Data from Frontend:", data)
 
-        # Log received data
-        print("Received data:", data)
-
-        # Ensure all parameters are present
-        if 'param1' not in data or 'param2' not in data or 'param3' not in data:
-            print("Error: Missing input parameters")
+        # Ensure all parameters exist
+        if not data or 'param1' not in data or 'param2' not in data or 'param3' not in data:
+            print("❌ Missing input parameters")
             return jsonify({'error': 'Missing input parameters'}), 400
 
-        # Convert input to float values (ensure they are numeric)
+        # Convert to numbers
         try:
             param1 = float(data['param1'])
             param2 = float(data['param2'])
             param3 = float(data['param3'])
         except ValueError:
-            print("Error: Invalid input type")
+            print("❌ Invalid input type (non-numeric value detected)")
             return jsonify({'error': 'Invalid input: all parameters must be numbers'}), 400
 
-        # Prepare request data
+        # Prepare request for Azure ML
         input_data = {"data": [[param1, param2, param3]]}
+        print("📤 Sending Request to Azure ML:", input_data)
 
-        # Log request before sending
-        print("Sending request to Azure ML:", input_data)
-
-        # Send request to Azure ML
+        # Call Azure ML API
         response = requests.post(AZURE_ML_ENDPOINT, json=input_data, headers=headers)
+        print("📨 Azure ML Response:", response.status_code, response.text)
 
-        # Log Azure response
-        print("Azure ML Response:", response.status_code, response.text)
-
-        # Handle Azure response
+        # Handle Azure ML response
         if response.status_code == 200:
             prediction = response.json()
+            print("✅ Prediction Success:", prediction)
             return jsonify({"prediction": prediction})
         else:
+            print("❌ Azure ML API Failed:", response.status_code, response.text)
             return jsonify({
                 'error': f'Azure API request failed with status {response.status_code}',
                 'details': response.text
             }), response.status_code
 
     except Exception as e:
-        print("Internal Server Error:", str(e))
-        traceback.print_exc()  # Print full error traceback in the console
+        print("❌ Internal Server Error:", str(e))
+        import traceback
+        traceback.print_exc()  # Print detailed error trace
         return jsonify({'error': 'Internal Server Error', 'details': str(e)}), 500
 
 if __name__ == '__main__':
