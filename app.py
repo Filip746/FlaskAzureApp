@@ -5,7 +5,7 @@ import json
 app = Flask(__name__)
 
 # Azure ML endpoint and API key
-endpoint = "https://b73a5ed0-5a44-4896-985e-69680dc267bf.northeurope.azurecontainer.io/score"
+endpoint = "http://b73a5ed0-5a44-4896-985e-69680dc267bf.northeurope.azurecontainer.io/score"
 api_key = "JqS3yTa93SKn8YYsqPI5bCuYHb9rzK7g"
 
 @app.route('/')
