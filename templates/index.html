@@ -2,53 +2,19 @@
 <html>
 
 <head>
-    <title>Books Price Prediction</title>
+    <title>Azure ML Prediction</title>
     <style>
         body {
             font-family: Arial, sans-serif;
             text-align: center;
-            margin: 0;
-            padding: 20px;
-            background-image: url('photo.jpg');
-            background-size: cover;
-            background-attachment: fixed;
-            background-position: center;
-            min-height: 100vh;
+            margin: 50px;
         }
 
-        .content-container {
-            background-color: rgba(255, 255, 255, 0.9);
-            padding: 20px;
-            border-radius: 10px;
-            display: inline-block;
-            margin: 50px auto;
-            max-width: 800px;
-        }
-
-        .github-corner {
-            position: fixed;
-            top: 0;
-            right: 0;
-            padding: 20px;
-            z-index: 1000;
-        }
-
-        .github-corner img {
-            width: 32px;
-            height: 32px;
-            transition: transform 0.3s ease;
-            filter: drop-shadow(2px 2px 2px rgba(0, 0, 0, 0.5));
-        }
-
-        .github-corner img:hover {
-            transform: scale(1.2);
-        }
-
-        textarea {
-            width: 80%;
-            height: 100px;
-            margin-bottom: 10px;
-            background-color: rgba(255, 255, 255, 0.8);
+        input,
+        select {
+            width: 50%;
+            padding: 8px;
+            margin: 10px 0;
         }
 
         button {
@@ -57,7 +23,6 @@
             color: white;
             border: none;
             cursor: pointer;
-            transition: background-color 0.3s ease;
         }
 
         button:hover {
@@ -67,9 +32,24 @@
         #result {
             margin-top: 20px;
             font-weight: bold;
-            background-color: rgba(255, 255, 255, 0.8);
-            padding: 10px;
-            border-radius: 5px;
+        }
+
+        .github-corner img {
+            width: 32px;
+            height: 32px;
+            transition: transform 0.3s ease;
+        }
+
+        .github-corner img:hover {
+            transform: scale(1.2);
+        }
+
+        .github-corner {
+            position: fixed;
+            top: 0;
+            right: 0;
+            padding: 20px;
+            z-index: 1000;
         }
     </style>
 </head>
@@ -79,38 +59,44 @@
         rel="noopener noreferrer">
         <img src="https://cdn-icons-png.flaticon.com/512/25/25231.png" alt="GitHub Repository">
     </a>
-
-    <div class="content-container">
-        <h2>Enter Data for Prediction</h2>
-        <form id="predict-form">
-            <textarea id="input-data"
-                placeholder='{"Name": "", "Author": "", "User Rating": 0, "Reviews": 0, "Price": 0, "Year": 0, "Genre": ""}]'></textarea><br>
-            <button type="button" onclick="sendPrediction()">Predict</button>
-        </form>
-        <h3>Prediction Result:</h3>
-        <p id="result"></p>
-    </div>
+    <h2>Enter Data for Prediction</h2>
+    <form id="predict-form">
+        <input type="number" id="user-rating" placeholder="User Rating" step="0.1" required><br>
+        <input type="number" id="reviews" placeholder="Reviews" required><br>
+        <input type="number" id="year" placeholder="Year" required><br>
+        <select id="genre" required>
+            <option value="">Select Genre</option>
+            <option value="Non Fiction">Non Fiction</option>
+            <option value="Fiction">Fiction</option>
+        </select><br>
+        <button type="button" onclick="sendPrediction()">Predict</button>
+    </form>
+    <h3>Prediction Result:</h3>
+    <p id="result"></p>
 
     <script>
         function sendPrediction() {
-            let inputData = document.getElementById("input-data").value;
-            try {
-                let parsedData = JSON.parse(inputData);
-                fetch('/predict', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(parsedData)
+            let inputData = {
+                "Name": null,
+                "Author": null,
+                "User Rating": parseFloat(document.getElementById("user-rating").value),
+                "Reviews": parseInt(document.getElementById("reviews").value),
+                "Price": 0,
+                "Year": parseInt(document.getElementById("year").value),
+                "Genre": document.getElementById("genre").value
+            };
+
+            fetch('/predict', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(inputData)
+            })
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById("result").innerText = JSON.stringify(data, null, 2);
+                    console.log("Full response:", data);
                 })
-                    .then(response => response.json())
-                    .then(data => {
-                        let scoredLabel = data["Scored Labels"];
-                        document.getElementById("result").innerText = scoredLabel;
-                        console.log("Full response:", data);
-                    })
-                    .catch(error => console.error('Error:', error));
-            } catch (e) {
-                alert("Invalid JSON format. Please correct and try again.");
-            }
+                .catch(error => console.error('Error:', error));
         }
     </script>
 </body>
