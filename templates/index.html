@@ -2,12 +2,30 @@
 <html>
 
 <head>
-    <title>Azure ML Prediction</title>
+    <title>Books Price Prediction</title>
     <style>
         body {
             font-family: Arial, sans-serif;
             text-align: center;
             margin: 50px;
+        }
+
+        .github-corner {
+            position: fixed;
+            top: 0;
+            right: 0;
+            padding: 20px;
+            z-index: 1000;
+        }
+
+        .github-corner img {
+            width: 32px;
+            height: 32px;
+            transition: transform 0.3s ease;
+        }
+
+        .github-corner img:hover {
+            transform: scale(1.2);
         }
 
         textarea {
@@ -36,6 +54,11 @@
 </head>
 
 <body>
+    <a href="https://github.com/Filip746/FlaskAzureApp/tree/master" class="github-corner" target="_blank"
+        rel="noopener noreferrer">
+        <img src="https://cdn-icons-png.flaticon.com/512/25/25231.png" alt="GitHub Repository">
+    </a>
+
     <h2>Enter Data for Prediction</h2>
     <form id="predict-form">
         <textarea id="input-data"
