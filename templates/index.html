@@ -1,28 +1,60 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 
 <head>
-    <title>Azure ML Prediction</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Books Price Prediction</title>
     <style>
         body {
             font-family: Arial, sans-serif;
             text-align: center;
-            margin: 50px;
+            margin: 0;
+            padding: 20px;
+            background-image: url("{{ url_for('static', filename='photo.jpg') }}");
+            background-size: cover;
+            background-attachment: fixed;
+            background-position: center;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .content-container {
+            background-color: rgba(255, 255, 255, 0.8);
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
+            max-width: 500px;
+            width: 90%;
+        }
+
+        h2,
+        h3 {
+            color: #333;
+            text-shadow: 1px 1px 2px rgba(255, 255, 255, 0.8);
         }
 
         input,
         select {
-            width: 50%;
-            padding: 8px;
+            width: 80%;
+            padding: 10px;
             margin: 10px 0;
+            border: 1px solid #ddd;
+            border-radius: 5px;
         }
 
         button {
-            padding: 10px 20px;
+            padding: 12px 24px;
             background-color: #4CAF50;
             color: white;
             border: none;
+            border-radius: 5px;
             cursor: pointer;
+            transition: background-color 0.3s ease;
+            font-size: 16px;
+            margin-top: 10px;
         }
 
         button:hover {
@@ -32,16 +64,10 @@
         #result {
             margin-top: 20px;
             font-weight: bold;
-        }
-
-        .github-corner img {
-            width: 32px;
-            height: 32px;
-            transition: transform 0.3s ease;
-        }
-
-        .github-corner img:hover {
-            transform: scale(1.2);
+            background-color: #f0f0f0;
+            padding: 15px;
+            border-radius: 5px;
+            word-wrap: break-word;
         }
 
         .github-corner {
@@ -50,6 +76,21 @@
             right: 0;
             padding: 20px;
             z-index: 1000;
+            background-color: rgba(255, 255, 255, 0.8);
+            border-radius: 0 0 0 15px;
+            padding: 10px;
+        }
+
+        .github-corner img {
+            width: 40px;
+            height: 40px;
+            transition: transform 0.3s ease;
+            filter: brightness(0) invert(1);
+            filter: drop-shadow(2px 2px 3px rgba(0, 0, 0, 0.5));
+        }
+
+        .github-corner img:hover {
+            transform: scale(1.2);
         }
     </style>
 </head>
@@ -59,23 +100,60 @@
         rel="noopener noreferrer">
         <img src="https://cdn-icons-png.flaticon.com/512/25/25231.png" alt="GitHub Repository">
     </a>
-    <h2>Enter Data for Prediction</h2>
-    <form id="predict-form">
-        <input type="number" id="user-rating" placeholder="User Rating" step="0.1" required><br>
-        <input type="number" id="reviews" placeholder="Reviews" required><br>
-        <input type="number" id="year" placeholder="Year" required><br>
-        <select id="genre" required>
-            <option value="">Select Genre</option>
-            <option value="Non Fiction">Non Fiction</option>
-            <option value="Fiction">Fiction</option>
-        </select><br>
-        <button type="button" onclick="sendPrediction()">Predict</button>
-    </form>
-    <h3>Prediction Result:</h3>
-    <p id="result"></p>
+    <div class="content-container">
+        <h2>Enter Data for Prediction</h2>
+        <form id="predict-form">
+            <input type="number" id="user-rating" placeholder="User Rating (1-5)" step="0.1" required min="1" max="5">
+            <p class="error-message" id="user-rating-error">User rating must be between 1 and 5.</p>
+
+            <input type="number" id="reviews" placeholder="Reviews" required><br>
+
+            <input type="number" id="year" placeholder="Year (2009-2025)" required min="2009" max="2025">
+            <p class="error-message" id="year-error">Year must be between 2009 and 2025.</p>
+
+            <select id="genre" required>
+                <option value="" disabled selected>Select Genre</option>
+                <option value="Non Fiction">Non Fiction</option>
+                <option value="Fiction">Fiction</option>
+            </select><br>
+            <button type="button" onclick="sendPrediction()">Predict</button>
+        </form>
+        <h3>Prediction Result:</h3>
+        <p id="result"></p>
+    </div>
 
     <script>
+        function validateInputs() {
+            let isValid = true;
+
+            // Validate User Rating
+            let userRating = parseFloat(document.getElementById("user-rating").value);
+            let userRatingError = document.getElementById("user-rating-error");
+            if (isNaN(userRating) || userRating < 1 || userRating > 5) {
+                userRatingError.style.display = "block";
+                isValid = false;
+            } else {
+                userRatingError.style.display = "none";
+            }
+
+            // Validate Year
+            let year = parseInt(document.getElementById("year").value);
+            let yearError = document.getElementById("year-error");
+            if (isNaN(year) || year < 2009 || year > 2025) {
+                yearError.style.display = "block";
+                isValid = false;
+            } else {
+                yearError.style.display = "none";
+            }
+
+            return isValid;
+        }
+
         function sendPrediction() {
+            if (!validateInputs()) {
+                return; // Stop execution if inputs are invalid
+            }
+
             let inputData = {
                 "Name": null,
                 "Author": null,
@@ -93,10 +171,21 @@
             })
                 .then(response => response.json())
                 .then(data => {
-                    document.getElementById("result").innerText = JSON.stringify(data, null, 2);
-                    console.log("Full response:", data);
+                    let price = parseFloat(data["Scored Labels"]).toFixed(2);
+
+                    // Validate price range
+                    if (price < 2 || price > 105) {
+                        document.getElementById("result").innerHTML = `<span class="result-error">Error: Uneseni podatci nisu smisleni.</span>`;
+                    } else {
+                        document.getElementById("result").innerText = `$${price}`;
+                    }
+
+                    console.log("Formatted price:", `$${price}`);
                 })
-                .catch(error => console.error('Error:', error));
+                .catch(error => {
+                    console.error('Error:', error);
+                    document.getElementById("result").innerHTML = `<span class="result-error">Error: Could not fetch prediction.</span>`;
+                });
         }
     </script>
 </body>
