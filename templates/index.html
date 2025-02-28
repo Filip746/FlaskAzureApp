@@ -23,10 +23,18 @@
                 body: inputData
             })
                 .then(response => response.json())
-                .then(data => document.getElementById("result").innerText = JSON.stringify(data))
+                .then(data => {
+                    // Display only the Scored Labels value
+                    if (data['Scored Labels']) {
+                        document.getElementById("result").innerText = data['Scored Labels'];
+                    } else {
+                        document.getElementById("result").innerText = 'Error: No prediction found';
+                    }
+                })
                 .catch(error => console.error('Error:', error));
         }
     </script>
+
 </body>
 
 </html>
