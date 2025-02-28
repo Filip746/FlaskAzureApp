@@ -1,19 +1,31 @@
 from flask import Flask, render_template, request, jsonify
 import urllib.request
 import json
-import ssl
 import os
+import ssl
 
 def allowSelfSignedHttps(allowed):
+    # bypass the server certificate verification on client side
     if allowed and not os.environ.get('PYTHONHTTPSVERIFY', '') and getattr(ssl, '_create_unverified_context', None):
         ssl._create_default_https_context = ssl._create_unverified_context
 
-allowSelfSignedHttps(True)
+allowSelfSignedHttps(True) # this line is needed if you use self-signed certificate in your scoring service.
 
 app = Flask(__name__)
+# Request data goes here
+# The example below assumes JSON formatting which may be updated
+# depending on the format your endpoint expects.
+# More information can be found here:
+# https://docs.microsoft.com/azure/machine-learning/how-to-deploy-advanced-entry-script
 
-API_URL = 'http://838b83fe-bffb-4bb7-8309-5e497ceb7eee.eastus2.azurecontainer.io/score'
-API_KEY = 'oS4S5usUhorSnys7LRVa74LQGEwdvfCC'  # Replace with your API key
+
+
+url = 'http://e6d493d4-6aaa-435b-b16e-7fcced2d945e.westeurope.azurecontainer.io/score'
+api_key = 'VaY1b33pnHtku07lSWqjnLnTIFdY3BHE'
+
+
+if not api_key:
+    raise Exception("A key should be provided to invoke the endpoint")
 
 @app.route('/')
 def home():
@@ -34,10 +46,10 @@ def predict():
         body = json.dumps(formatted_data).encode('utf-8')  # Encode u JSON format
         headers = {
             'Content-Type': 'application/json',
-            'Authorization': 'Bearer ' + API_KEY
+            'Authorization': 'Bearer ' + api_key
         }
 
-        req = urllib.request.Request(API_URL, body, headers)
+        req = urllib.request.Request(url, body, headers)
         response = urllib.request.urlopen(req)
         result = json.loads(response.read())
 
