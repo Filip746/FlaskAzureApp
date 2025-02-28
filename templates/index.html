@@ -7,7 +7,22 @@
         body {
             font-family: Arial, sans-serif;
             text-align: center;
-            margin: 50px;
+            margin: 0;
+            padding: 20px;
+            background-image: url('photo.jpg');
+            background-size: cover;
+            background-attachment: fixed;
+            background-position: center;
+            min-height: 100vh;
+        }
+
+        .content-container {
+            background-color: rgba(255, 255, 255, 0.9);
+            padding: 20px;
+            border-radius: 10px;
+            display: inline-block;
+            margin: 50px auto;
+            max-width: 800px;
         }
 
         .github-corner {
@@ -22,6 +37,7 @@
             width: 32px;
             height: 32px;
             transition: transform 0.3s ease;
+            filter: drop-shadow(2px 2px 2px rgba(0, 0, 0, 0.5));
         }
 
         .github-corner img:hover {
@@ -32,6 +48,7 @@
             width: 80%;
             height: 100px;
             margin-bottom: 10px;
+            background-color: rgba(255, 255, 255, 0.8);
         }
 
         button {
@@ -40,6 +57,7 @@
             color: white;
             border: none;
             cursor: pointer;
+            transition: background-color 0.3s ease;
         }
 
         button:hover {
@@ -49,6 +67,9 @@
         #result {
             margin-top: 20px;
             font-weight: bold;
+            background-color: rgba(255, 255, 255, 0.8);
+            padding: 10px;
+            border-radius: 5px;
         }
     </style>
 </head>
@@ -59,14 +80,16 @@
         <img src="https://cdn-icons-png.flaticon.com/512/25/25231.png" alt="GitHub Repository">
     </a>
 
-    <h2>Enter Data for Prediction</h2>
-    <form id="predict-form">
-        <textarea id="input-data"
-            placeholder='{"Name": "", "Author": "", "User Rating": 0, "Reviews": 0, "Price": 0, "Year": 0, "Genre": ""}]'></textarea><br>
-        <button type="button" onclick="sendPrediction()">Predict</button>
-    </form>
-    <h3>Prediction Result:</h3>
-    <p id="result"></p>
+    <div class="content-container">
+        <h2>Enter Data for Prediction</h2>
+        <form id="predict-form">
+            <textarea id="input-data"
+                placeholder='{"Name": "", "Author": "", "User Rating": 0, "Reviews": 0, "Price": 0, "Year": 0, "Genre": ""}]'></textarea><br>
+            <button type="button" onclick="sendPrediction()">Predict</button>
+        </form>
+        <h3>Prediction Result:</h3>
+        <p id="result"></p>
+    </div>
 
     <script>
         function sendPrediction() {
