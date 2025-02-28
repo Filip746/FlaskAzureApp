@@ -12,8 +12,8 @@ allowSelfSignedHttps(True)
 
 app = Flask(__name__)
 
-API_URL = 'http://b73a5ed0-5a44-4896-985e-69680dc267bf.northeurope.azurecontainer.io/score'
-API_KEY = 'JqS3yTa93SKn8YYsqPI5bCuYHb9rzK7g'  # Replace with your API key
+API_URL = 'http://838b83fe-bffb-4bb7-8309-5e497ceb7eee.eastus2.azurecontainer.io/score'
+API_KEY = 'oS4S5usUhorSnys7LRVa74LQGEwdvfCC'  # Replace with your API key
 
 @app.route('/')
 def home():
