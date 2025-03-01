@@ -70,7 +70,14 @@
             word-wrap: break-word;
         }
 
-        .github-corner {
+        .github-logo {
+            display: block;
+            margin: 0 auto 20px;
+            width: 60px;
+            height: 60px;
+        }
+
+        .github-logo {
             position: fixed;
             top: 0;
             right: 0;
@@ -81,26 +88,49 @@
             padding: 10px;
         }
 
-        .github-corner img {
+        .github-logo img {
             width: 40px;
             height: 40px;
-            transition: transform 0.3s ease;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
             filter: brightness(0) invert(1);
             filter: drop-shadow(2px 2px 3px rgba(0, 0, 0, 0.5));
         }
 
-        .github-corner img:hover {
-            transform: scale(1.2);
+        .github-logo img:hover {
+            transform: scale(1.1);
+            filter: brightness(1.2);
+            box-shadow: 0 0 10px rgba(128, 128, 128, 0.5);
+        }
+
+        img {
+            display: none;
+            margin-top: 20px;
+            max-width: 100%;
+            height: auto;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
         }
     </style>
 </head>
 
 <body>
-    <a href="https://github.com/Filip746/FlaskAzureApp/tree/master" class="github-corner" target="_blank"
-        rel="noopener noreferrer">
-        <img src="https://cdn-icons-png.flaticon.com/512/25/25231.png" alt="GitHub Repository">
-    </a>
+
     <div class="content-container">
+        <a href="https://github.com/Filip746/FlaskAzureApp/tree/master" target="_blank" rel="noopener noreferrer">
+            <img src="https://cdn-icons-png.flaticon.com/512/25/25231.png" alt="GitHub Repository" class="github-logo">
+        </a>
+        <h1>Charts Display</h1>
+        <div class="button-container">
+            <button onclick="showChart('chart1')">Graf distribucije korisničkih ocjena</button>
+            <button onclick="showChart('chart2')">Distribucija broja knjiga po žanru</button>
+            <button onclick="showChart('chart3')">Distribucija ocjena knjiga po žanru</button>
+        </div>
+
+        <img id="chart1" src="static/photo1.png" alt="Prikaži graf distribucije korisničkih ocjena">
+        <img id="chart2" src="static/photo2.png" alt="Prikaži distribuciju broja knjiga po žanru">
+        <img id="chart3" src="static/photo3.png" alt="Prikaži distribuciju ocjena knjiga po žanru">
+
         <h2>Enter Data for Prediction</h2>
         <form id="predict-form">
             <input type="number" id="user-rating" placeholder="User Rating (1-5)" step="0.1" required min="1" max="5">
@@ -123,6 +153,15 @@
     </div>
 
     <script>
+        function showChart(chartId) {
+            const charts = document.querySelectorAll('img');
+            charts.forEach(chart => chart.style.display = 'none');
+
+            const selectedChart = document.getElementById(chartId);
+            if (selectedChart) {
+                selectedChart.style.display = 'block';
+            }
+        }
         function validateInputs() {
             let isValid = true;
 
